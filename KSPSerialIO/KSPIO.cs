@@ -195,7 +195,8 @@ namespace KSPSerialIO
                 case 29://Breaks
                     FlightGlobals.ActiveVessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, down);
                     break;
-                case 19://???
+                case 19://RCS
+                    FlightGlobals.ActiveVessel.ActionGroups.SetGroup(KSPActionGroup.RCS, down);
                     break;
 
                 case 31://Launch button
@@ -253,8 +254,12 @@ namespace KSPSerialIO
                     break;
 
                 case 43:
-                    if (down && MuMechModuleHullCamera.sCurrentHandler != null)
-                        MuMechModuleHullCamera.sCurrentHandler.NextCameraAction(null);
+                    //if (down && MuMechModuleHullCamera.sCurrentHandler != null)
+                    //    MuMechModuleHullCamera.sCurrentHandler.NextCameraAction(null);
+                    break;
+                case 45:
+                    //if (down && MuMechModuleHullCamera.sCurrentHandler != null)
+                    //    MuMechModuleHullCamera.sCurrentHandler.PreviousCameraAction(null);
                     break;
             }
         }
@@ -265,48 +270,51 @@ namespace KSPSerialIO
                 return;
             if (!button_down_raw[25])
                 return;
+            VesselAutopilot.AutopilotMode mode = VesselAutopilot.AutopilotMode.StabilityAssist;
             if (button_down_raw[30])
             {
                 if (button_down_raw[32])
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Retrograde);
+                    mode = VesselAutopilot.AutopilotMode.Retrograde;
                 else
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Prograde);
+                    mode = VesselAutopilot.AutopilotMode.Prograde;
             }
             else if (button_down_raw[26])
             {
                 if (button_down_raw[32])
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.RadialOut);
+                    mode = VesselAutopilot.AutopilotMode.RadialOut;
                 else
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.RadialIn);
+                    mode = VesselAutopilot.AutopilotMode.RadialIn;
             }
             else if (button_down_raw[20])
             {
                 if (button_down_raw[32])
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Antinormal);
+                    mode = VesselAutopilot.AutopilotMode.Antinormal;
                 else
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Normal);
+                    mode = VesselAutopilot.AutopilotMode.Normal;
             }
             else if (button_down_raw[28])
             {
                 if (button_down_raw[32])
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Target);
+                    mode = VesselAutopilot.AutopilotMode.Target;
                 else
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.AntiTarget);
+                    mode = VesselAutopilot.AutopilotMode.AntiTarget;
             }
             else
             {
                 if (button_down_raw[32])
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.Maneuver);
+                    mode = VesselAutopilot.AutopilotMode.Maneuver;
                 else
-                    activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
+                    mode = VesselAutopilot.AutopilotMode.StabilityAssist;
             }
+            if (!activeVessel.Autopilot.SetMode(mode))
+                activeVessel.Autopilot.SetMode(VesselAutopilot.AutopilotMode.StabilityAssist);
             
             VesselAutopilotUI ui = FindObjectOfType<VesselAutopilotUI>();
             if (ui != null)
             {
                 for(int n=0; n<ui.modeButtons.Length; n++)
                 {
-                    VesselAutopilot.AutopilotMode mode = (VesselAutopilot.AutopilotMode)(n);
+                    mode = (VesselAutopilot.AutopilotMode)(n);
                     RUIToggleButton.ButtonState state = RUIToggleButton.ButtonState.FALSE;
                     if (!FlightGlobals.ActiveVessel.Autopilot.CanSetMode(mode))
                         state = RUIToggleButton.ButtonState.DISABLED;
@@ -351,11 +359,12 @@ namespace KSPSerialIO
             if (button_down_raw[24])
             {
                 //Docking mode
-                if (button_down_raw[16])
-                    s.X = -x;
-                else
-                    s.Z = -x;
+                s.X = x;
                 s.Y = y;
+                if (button_down_raw[15])
+                    s.Z = -1.0f;
+                if (button_down_raw[16])
+                    s.Z = 1.0f;
             }
             else
             {
