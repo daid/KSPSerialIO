@@ -213,6 +213,23 @@ namespace KSPSerialIO
                     updateAutoPilotMode();
                     break;
 
+                case 21://Deploy or retract all solar panels.
+                    foreach (Part p in FlightGlobals.ActiveVessel.parts)
+                    {
+                        foreach (PartModule pm in p.Modules)
+                        {
+                            if (pm is ModuleDeployableSolarPanel)
+                            {
+                                ModuleDeployableSolarPanel pdsp = pm as ModuleDeployableSolarPanel;
+                                if (down)
+                                    pdsp.Extend();
+                                else
+                                    pdsp.Retract();
+                            }
+                        }
+                    }
+                    break;
+
                 case 35:
                     if (down)
                         TimeWarp.SetRate(TimeWarp.CurrentRateIndex - 1, false);
@@ -254,12 +271,20 @@ namespace KSPSerialIO
                     break;
 
                 case 43:
-                    //if (down && MuMechModuleHullCamera.sCurrentHandler != null)
-                    //    MuMechModuleHullCamera.sCurrentHandler.NextCameraAction(null);
+                    if (down && KCameraController.instance != null)
+                        KCameraController.instance.nextLocalCamera();
                     break;
                 case 45:
-                    //if (down && MuMechModuleHullCamera.sCurrentHandler != null)
-                    //    MuMechModuleHullCamera.sCurrentHandler.PreviousCameraAction(null);
+                    if (down && KCameraController.instance != null)
+                        KCameraController.instance.previousLocalCamera();
+                    break;
+                case 41:
+                    if (down && KCameraController.instance != null)
+                        KCameraController.instance.nextRemoteCamera();
+                    break;
+                case 47:
+                    if (down && KCameraController.instance != null)
+                        KCameraController.instance.previousRemoteCamera();
                     break;
             }
         }
